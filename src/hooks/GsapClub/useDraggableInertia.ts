@@ -6,9 +6,7 @@ type UseDraggableInertiaOptions = {
   rotate?: boolean;
   disabled?: boolean;
   bounds?: boolean;
-  elastic?: boolean;
-  springBack?: boolean;
-  snapToCenter?: boolean;
+  bounce?: number; // 0 to 1 strength
 };
 
 export const useDraggableInertia = (
@@ -18,9 +16,7 @@ export const useDraggableInertia = (
     rotate = false,
     disabled = false,
     bounds = true,
-    elastic = true,
-    springBack = true,
-    snapToCenter = false,
+    bounce = 0.5,
   }: UseDraggableInertiaOptions = {}
 ) => {
   const frame = useRef<number>(0);
@@ -79,16 +75,8 @@ export const useDraggableInertia = (
       posY += dy;
 
       if (bounds) {
-        if (elastic) {
-          // Allow small stretch outside bounds (rubber-band effect)
-          if (posX < minX) posX = minX - Math.sqrt(minX - posX);
-          if (posX > maxX) posX = maxX + Math.sqrt(posX - maxX);
-          if (posY < minY) posY = minY - Math.sqrt(minY - posY);
-          if (posY > maxY) posY = maxY + Math.sqrt(posY - maxY);
-        } else {
-          posX = Math.min(Math.max(posX, minX), maxX);
-          posY = Math.min(Math.max(posY, minY), maxY);
-        }
+        posX = Math.min(Math.max(posX, minX), maxX);
+        posY = Math.min(Math.max(posY, minY), maxY);
       }
 
       if (rotate) {
@@ -122,15 +110,23 @@ export const useDraggableInertia = (
         posX += vx.current * dt;
         posY += vy.current * dt;
 
+        // Bounce when hitting edges
         if (bounds) {
-          if (elastic) {
-            if (posX < minX) posX = minX - Math.sqrt(minX - posX);
-            if (posX > maxX) posX = maxX + Math.sqrt(posX - maxX);
-            if (posY < minY) posY = minY - Math.sqrt(minY - posY);
-            if (posY > maxY) posY = maxY + Math.sqrt(posY - maxY);
-          } else {
-            posX = Math.min(Math.max(posX, minX), maxX);
-            posY = Math.min(Math.max(posY, minY), maxY);
+          if (posX < minX) {
+            posX = minX;
+            vx.current = -vx.current * bounce;
+          }
+          if (posX > maxX) {
+            posX = maxX;
+            vx.current = -vx.current * bounce;
+          }
+          if (posY < minY) {
+            posY = minY;
+            vy.current = -vy.current * bounce;
+          }
+          if (posY > maxY) {
+            posY = maxY;
+            vy.current = -vy.current * bounce;
           }
         }
 
@@ -148,37 +144,10 @@ export const useDraggableInertia = (
 
         if (stillMoving) {
           frame.current = requestAnimationFrame(inertiaUpdate);
-        } else {
-          if (springBack) springBackInside();
-          if (snapToCenter) snapToCenterInside();
         }
       };
 
       frame.current = requestAnimationFrame(inertiaUpdate);
-    };
-
-    const springBackInside = () => {
-      const finalX = Math.min(Math.max(posX, minX), maxX);
-      const finalY = Math.min(Math.max(posY, minY), maxY);
-
-      gsap.to(ref.current!, {
-        x: finalX,
-        y: finalY,
-        duration: 0.6,
-        ease: "elastic.out(1, 0.5)",
-      });
-    };
-
-    const snapToCenterInside = () => {
-      const centerX = (parentRect.width - width) / 2;
-      const centerY = (parentRect.height - height) / 2;
-
-      gsap.to(ref.current!, {
-        x: centerX,
-        y: centerY,
-        duration: 0.8,
-        ease: "power2.out",
-      });
     };
 
     element.addEventListener("mousedown", onStart);
@@ -197,14 +166,5 @@ export const useDraggableInertia = (
       window.removeEventListener("touchend", onEnd);
       cancelAnimationFrame(frame.current);
     };
-  }, [
-    ref,
-    resistance,
-    rotate,
-    disabled,
-    bounds,
-    elastic,
-    springBack,
-    snapToCenter,
-  ]);
+  }, [ref, resistance, rotate, disabled, bounds, bounce]);
 };

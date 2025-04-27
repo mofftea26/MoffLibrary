@@ -300,13 +300,11 @@ function DraggableInertiaDemo() {
   const boxRef = useRef<HTMLDivElement>(null);
 
   useDraggableInertia(boxRef as RefObject<HTMLElement>, {
-    resistance: 8,
-    rotate: true,
+    resistance: 2,
+    rotate: false,
     bounds: true,
-    elastic: true,
-    springBack: true,
-    snapToCenter: true,
     disabled: false,
+    bounce: 0,
   });
 
   return (
@@ -315,10 +313,6 @@ function DraggableInertiaDemo() {
         height: "100vh",
         width: "100%",
         background: "#111",
-        display: "flex",
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
       }}
     >
       <div
