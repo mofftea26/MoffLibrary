@@ -6,7 +6,7 @@ import { useSmoothScroll } from "./hooks/GsapClub/useSmoothScroll";
 import { useScrambleText } from "./hooks/GsapClub/useScrambleText";
 import { usePhysics2D } from "./hooks/GsapClub/usePhysics2D";
 import { usePhysics2DGroup } from "./hooks/GsapClub/usePhysics2DGroup";
-import { useMultipleRefs } from "./hooks/useMultipleRefs";
+import { useMultipleRefs } from "./hooks/UtilityHooks/useMultipleRefs";
 import gsap from "gsap";
 import "./App.css";
 import { usePhysics2DController } from "./hooks/GsapClub/usePhysics2DEXplosion";
