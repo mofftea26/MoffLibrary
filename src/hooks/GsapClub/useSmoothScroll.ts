@@ -2,12 +2,18 @@
 import { useEffect } from "react";
 import Lenis from "@studio-freight/lenis";
 
-export const useSmoothScroll = () => {
+type SmoothScrollProps = {
+  smoothWheel?: boolean;
+  wheelMultiplier?: number;
+  orientation?: "vertical" | "horizontal";
+};
+
+export const useSmoothScroll = (props?: SmoothScrollProps) => {
   useEffect(() => {
     const lenis = new Lenis({
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      orientation: "vertical",
+      smoothWheel: props?.smoothWheel,
+      wheelMultiplier: props?.wheelMultiplier,
+      orientation: props?.orientation,
     });
 
     const raf = (time: number) => {
